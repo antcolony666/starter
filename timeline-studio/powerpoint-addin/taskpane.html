@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Tempo 时间线工作台 — PowerPoint VSTO</title>
+  <link rel="stylesheet" href="./taskpane.css" />
+</head>
+<body>
+  <div class="pane-container">
+    <!-- 顶部品牌与宿主连接状态 -->
+    <header class="brand-header">
+      <div class="brand-left">
+        <div class="brand-mark">t</div>
+        <div class="brand-titles">
+          <h1>Tempo 时间线</h1>
+          <span>PowerPoint VSTO 加载项</span>
+        </div>
+      </div>
+      <div id="hostStatusBadge" class="host-badge disconnected" title="未检测到 PowerPoint 宿主">
+        <span id="hostStatusDot" class="host-dot"></span>
+        <span id="hostStatusText">检测宿主中…</span>
+      </div>
+    </header>
+
+    <!-- 顶部友好警示与提示条 -->
+    <div id="topAlert" class="alert-bar" role="alert"></div>
+
+    <!-- 核心操作卡片 -->
+    <section class="action-card">
+      <button id="btnInsertTimeline" class="btn-insert-main" type="button">
+        <span>✚</span> 插入到当前幻灯片
+      </button>
+      <div class="quick-toolbar">
+        <button id="btnResetSample" class="btn-secondary" type="button" title="重置为 Q4 产品发布默认数据">
+          恢复示例
+        </button>
+        <button id="btnClearAll" class="btn-secondary" type="button" title="清空全部泳道与任务">
+          清空数据
+        </button>
+      </div>
+    </section>
+
+    <!-- 实时缩略预览画板 -->
+    <section class="preview-section">
+      <div class="preview-header">
+        <span class="preview-title">实时排版预览</span>
+        <div class="density-switch">
+          <button id="densityDetailedBtn" class="density-btn active" type="button">详细</button>
+          <button id="densityOverviewBtn" class="density-btn" type="button">概览</button>
+        </div>
+      </div>
+      <div id="previewCanvasWrap" class="preview-canvas-wrap"></div>
+    </section>
+
+    <!-- 时间线标题配置 -->
+    <div class="settings-bar">
+      <input
+        id="timelineTitleInput"
+        type="text"
+        class="input-timeline-title"
+        placeholder="时间线标题（如：Q4 产品发布）"
+        maxlength="60"
+      />
+    </div>
+
+    <!-- 泳道与任务选项卡切换 -->
+    <nav class="tab-nav">
+      <button id="tabTasks" class="tab-btn active" type="button">任务与里程碑</button>
+      <button id="tabLanes" class="tab-btn" type="button">泳道管理</button>
+    </nav>
+
+    <!-- 任务/里程碑管理面板 -->
+    <section id="tasksViewSection">
+      <div id="tasksList" class="items-list"></div>
+      <button id="btnOpenAddTask" class="btn-add-item" type="button">
+        <span>＋</span> 添加任务 / 里程碑
+      </button>
+    </section>
+
+    <!-- 泳道管理面板 -->
+    <section id="lanesViewSection" style="display: none;">
+      <div id="lanesList" class="items-list"></div>
+      <button id="btnOpenAddLane" class="btn-add-item" type="button">
+        <span>＋</span> 添加新泳道
+      </button>
+    </section>
+  </div>
+
+  <!-- 泳道编辑模态弹窗 -->
+  <div id="laneModalMask" class="modal-mask" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="laneModalTitle">新建泳道</h3>
+        <button id="btnCloseLaneModal" type="button" class="btn-close-modal">×</button>
+      </div>
+      <form id="laneForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="laneNameInput">泳道名称</label>
+            <input id="laneNameInput" class="form-control" placeholder="例如：产品设计" required maxlength="40" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="laneSubtitleInput">副标题 / 说明</label>
+              <input id="laneSubtitleInput" class="form-control" placeholder="例如：体验与视觉系统" maxlength="40" />
+            </div>
+            <div class="form-group">
+              <label for="laneIconInput">图标 / 标识</label>
+              <input id="laneIconInput" class="form-control" placeholder="例如：✳、⌕、⌘、↗" maxlength="4" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button id="btnCancelLaneModal" type="button" class="btn-secondary">取消</button>
+          <button type="submit" class="btn-insert-main" style="width: auto; padding: 0 16px; height: 30px;">保存泳道</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 任务/里程碑编辑模态弹窗 -->
+  <div id="taskModalMask" class="modal-mask" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="taskModalTitle">新建任务/里程碑</h3>
+        <button id="btnCloseTaskModal" type="button" class="btn-close-modal">×</button>
+      </div>
+      <form id="taskForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="taskTitleInput">事项名称</label>
+            <input id="taskTitleInput" class="form-control" placeholder="例如：设计系统搭建" required maxlength="80" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="taskStartInput">开始日期</label>
+              <input id="taskStartInput" type="date" class="form-control" required />
+            </div>
+            <div id="taskEndGroup" class="form-group">
+              <label for="taskEndInput">结束日期</label>
+              <input id="taskEndInput" type="date" class="form-control" required />
+            </div>
+          </div>
+          <label class="checkbox-row">
+            <input id="taskIsMilestone" type="checkbox" />
+            <span>设为单日关键里程碑（以菱形展示）</span>
+          </label>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="taskLaneSelect">所属泳道</label>
+              <select id="taskLaneSelect" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label for="taskStatusSelect">进度状态</label>
+              <select id="taskStatusSelect" class="form-control">
+                <option value="planned">待开始</option>
+                <option value="active">进行中</option>
+                <option value="done">已完成</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>标记色调</label>
+            <div id="colorPickerRow" class="color-picker-row"></div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button id="btnCancelTaskModal" type="button" class="btn-secondary">取消</button>
+          <button type="submit" class="btn-insert-main" style="width: auto; padding: 0 16px; height: 30px;">保存事项</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 轻量提示条 -->
+  <div id="toastNotice" class="toast-notice" role="status"></div>
+
+  <!-- 主程序入口 -->
+  <script type="module" src="./src/taskpane.js"></script>
+</body>
+</html>

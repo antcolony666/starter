@@ -1,0 +1,20 @@
+{
+  "name": "tempo-powerpoint-timeline-vsto",
+  "version": "1.1.0",
+  "description": "Windows PowerPoint .NET Framework 4.8 VSTO timeline COM add-in with a local WebView2 task pane",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "build:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File com-addin/Build-Windows.ps1 -Configuration Release"
+  },
+  "keywords": [
+    "powerpoint",
+    "vsto",
+    "com-addin",
+    "timeline",
+    "webview2"
+  ],
+  "author": "Tempo Studio",
+  "license": "MIT"
+}

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath32)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E29F862A-845A-44D4-8B9F-DA7D3150B914}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Tempo.TimelineAddin</RootNamespace>
+    <AssemblyName>TempoTimelineAddin</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <ProjectTypeGuids>{BAA0C2D2-18E2-41B9-852F-F413020CAA33};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OfficeApplication>PowerPoint</OfficeApplication>
+    <OfficeVersion>16.0</OfficeVersion>
+    <VSTO_TrustAssembliesLocation>ApplicationAndPrerequisites</VSTO_TrustAssembliesLocation>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <LangVersion>7.3</LangVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <SignManifests>false</SignManifests>
+    <WebView2Version>1.0.2903.40</WebView2Version>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols><DebugType>full</DebugType><Optimize>false</Optimize><OutputPath>bin\Debug\</OutputPath><DefineConstants>DEBUG;TRACE</DefineConstants><WarningLevel>4</WarningLevel><PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType><Optimize>true</Optimize><OutputPath>bin\Release\</OutputPath><DefineConstants>TRACE</DefineConstants><WarningLevel>4</WarningLevel><PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="office"><EmbedInteropTypes>true</EmbedInteropTypes></Reference>
+    <Reference Include="Microsoft.Office.Interop.PowerPoint"><EmbedInteropTypes>true</EmbedInteropTypes></Reference>
+    <Reference Include="Microsoft.Office.Tools"><Private>False</Private></Reference>
+    <Reference Include="Microsoft.Office.Tools.Common"><Private>False</Private></Reference>
+    <Reference Include="Microsoft.Office.Tools.PowerPoint"><Private>False</Private></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ThisAddIn.cs" />
+    <Compile Include="ThisAddIn.Designer.cs"><DependentUpon>ThisAddIn.cs</DependentUpon></Compile>
+    <Compile Include="Ribbon1.cs" />
+    <Compile Include="TimelineTaskPaneControl.cs" />
+    <Compile Include="TimelineModel.cs" />
+    <Compile Include="TimelineLayout.cs" />
+    <Compile Include="PowerPointTimelineRenderer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\taskpane.html"><Link>web\taskpane.html</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="..\taskpane.css"><Link>web\taskpane.css</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="..\src\taskpane.js"><Link>web\src\taskpane.js</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="..\src\office-powerpoint.js"><Link>web\src\office-powerpoint.js</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="..\src\model.js"><Link>web\src\model.js</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="..\src\date-utils.js"><Link>web\src\date-utils.js</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="..\src\layout.js"><Link>web\src\layout.js</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="..\src\preview.js"><Link>web\src\preview.js</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2"><Version>$(WebView2Version)</Version></PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets')" />
+  <Target Name="EnsureVstoTargets" BeforeTargets="PrepareForBuild" Condition="!Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\OfficeTools\Microsoft.VisualStudio.Tools.Office.targets')">
+    <Error Text="未找到 VSTO Build Tools。请在 Windows Visual Studio 安装 PowerPoint VSTO 开发工具后再构建。" />
+  </Target>
+</Project>
